@@ -2,15 +2,19 @@ using ComposerApi;
 using HandUp;
 using ProductDetailsService;
 using ProductPricingService;
+using ProductReviewService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHandUp(
-    opts =>
+    configuration =>
     {
-        opts
+        configuration.MaxParticipationLoopCount = 20;
+        
+        configuration
             .AddConfigurator(new ProductDetailsServiceHandUpConfigurator())
-            .AddConfigurator(new ProductPricingServiceHandUpConfigurator());
+            .AddConfigurator(new ProductPricingServiceHandUpConfigurator())
+            .AddConfigurator(new ProductReviewServiceHandUpConfigurator());
     });
 
 var app = builder.Build();
