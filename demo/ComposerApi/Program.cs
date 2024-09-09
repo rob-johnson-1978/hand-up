@@ -1,9 +1,17 @@
 using ComposerApi;
 using HandUp;
+using ProductDetailsService;
+using ProductPricingService;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddHandUp();
+builder.Services.AddHandUp(
+    opts =>
+    {
+        opts
+            .AddConfigurator(new ProductDetailsServiceHandUpConfigurator())
+            .AddConfigurator(new ProductPricingServiceHandUpConfigurator());
+    });
 
 var app = builder.Build();
 
