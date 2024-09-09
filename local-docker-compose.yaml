@@ -9,8 +9,8 @@ services:
   composer-api:
     container_name: composer-api
     build:
-      context: ./demo/ComposerApi
-      dockerfile: dockerfile
+      context: .
+      dockerfile: demos.composer-api.dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
