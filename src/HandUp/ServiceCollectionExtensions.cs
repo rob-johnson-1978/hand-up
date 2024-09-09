@@ -1,23 +1,22 @@
-﻿using System.Reflection;
-using HandUp.ServiceComposition;
+﻿using HandUp.ServiceComposition;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace HandUp;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddHandUp(this IServiceCollection services, Action<HandUpOptions> optionsAction)
+    public static IServiceCollection AddHandUp(this IServiceCollection services, Action<HandUpConfiguration> configurationAction)
     {
-        var options = new HandUpOptions();
-        optionsAction.Invoke(options);
+        var configuration = new HandUpConfiguration();
+        configurationAction.Invoke(configuration);
+        services.AddSingleton(configuration);
 
-        foreach (var configureHandUp in options.Configurators)
+        foreach (var configurator in configuration.Configurators)
         {
-            configureHandUp.AddServices(services);
+            configurator.AddServices(services);
         }
 
-        var participatorTypes = GetParticipatorTypes(options);
+        var participatorTypes = GetParticipatorTypes(configuration);
         foreach (var participatorType in participatorTypes)
         {
             services.AddScoped(participatorType.Interface, participatorType.Implmentation);
@@ -28,7 +27,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static (Type Interface, Type Implmentation)[] GetParticipatorTypes(HandUpOptions options)
+    private static (Type Interface, Type Implmentation)[] GetParticipatorTypes(HandUpConfiguration options)
     {
         var assemblies = options.Configurators.Select(configurator => configurator.GetType().Assembly);
         var allTypes = assemblies.SelectMany(ass => ass.GetTypes());
@@ -52,5 +51,4 @@ public static class ServiceCollectionExtensions
             .Select(type => (type.GetInterfaces().Single(), type))
             .ToArray();
     }
-
 }
