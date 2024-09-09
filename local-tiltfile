@@ -1,0 +1,1 @@
+docker_compose("local-docker-compose.yaml")

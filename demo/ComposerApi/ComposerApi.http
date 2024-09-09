@@ -1,0 +1,6 @@
+@ComposerApi_HostAddress = http://localhost:5250
+
+GET {{ComposerApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
