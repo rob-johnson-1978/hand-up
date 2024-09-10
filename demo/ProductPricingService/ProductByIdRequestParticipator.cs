@@ -7,14 +7,20 @@ public class ProductByIdRequestParticipator(IRandomFunction randomFunction) : IP
 {
     public bool WillPopulateCollectionSkeleton => false;
 
-    public bool Ready(ProductByIdResponse response) => true; // always ready
+    public bool Ready(ComposeResult<ProductByIdResponse> ongoingComposeResult) => true; // always ready
 
-    public async Task ParticipateAsync(ProductByIdRequest request, ProductByIdResponse response)
+    public async Task ParticipateAsync(ProductByIdRequest request, ComposeResult<ProductByIdResponse> ongoingComposeResult)
     {
         await Task.CompletedTask;
-        
+
+        if (request.ProductId != 123)
+        {
+            ongoingComposeResult.NotFoundOrNoResults = true;
+            return;
+        }
+
         randomFunction.DoSomethingRandom();
 
-        response.CurrentPrice = 12.12M;
+        ongoingComposeResult.Response.CurrentPrice = 12.12M;
     }
 }

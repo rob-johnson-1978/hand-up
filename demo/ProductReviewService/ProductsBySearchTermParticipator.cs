@@ -1,13 +1,13 @@
 ﻿using Contracts;
 using HandUp;
 
-namespace ProductPricingService;
+namespace ProductReviewService;
 
 public class ProductsBySearchTermParticipator : IParticipateInRequests<ProductsBySearchTermRequest, List<ProductBySearchTerm>>
 {
     public bool WillPopulateCollectionSkeleton => false;
 
-    public bool Ready(ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult) => ongoingComposeResult.CollectionSkeletonReady;
+    public bool Ready(ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult) => ongoingComposeResult.Response.Count > 0;
 
     public async Task ParticipateAsync(ProductsBySearchTermRequest request, ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult)
     {
@@ -21,11 +21,11 @@ public class ProductsBySearchTermParticipator : IParticipateInRequests<ProductsB
         // todo: this would be a db lookup
         foreach (var productBySearchTerm in ongoingComposeResult.Response)
         {
-            productBySearchTerm.CurrentPrice = productBySearchTerm.Id switch
+            productBySearchTerm.AverageReview = productBySearchTerm.Id switch
             {
-                1 => 2.99M,
-                2 => 1.49M,
-                3 => 49.99M,
+                1 => 4,
+                2 => 5,
+                3 => 3,
                 _ => throw new NotImplementedException()
             };
         }

@@ -3,6 +3,8 @@ using HandUp;
 using ProductDetailsService;
 using ProductPricingService;
 using ProductReviewService;
+using SalesService;
+using WarehouseService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,9 @@ builder.Services.AddHandUp(
         configuration
             .AddConfigurator(new ProductDetailsServiceHandUpConfigurator())
             .AddConfigurator(new ProductPricingServiceHandUpConfigurator())
-            .AddConfigurator(new ProductReviewServiceHandUpConfigurator());
+            .AddConfigurator(new ProductReviewServiceHandUpConfigurator())
+            .AddConfigurator(new WarehouseServiceHandUpConfigurator())
+            .AddConfigurator(new SalesServiceHandUpConfigurator());
     });
 
 var app = builder.Build();

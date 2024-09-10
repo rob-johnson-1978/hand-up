@@ -7,13 +7,19 @@ public class ProductByIdRequestParticipator : IParticipateInRequests<ProductById
 {
     public bool WillPopulateCollectionSkeleton => false;
 
-    public bool Ready(ProductByIdResponse response) => true; // always ready
+    public bool Ready(ComposeResult<ProductByIdResponse> ongoingComposeResult) => true; // always ready
 
-    public async Task ParticipateAsync(ProductByIdRequest request, ProductByIdResponse response)
+    public async Task ParticipateAsync(ProductByIdRequest request, ComposeResult<ProductByIdResponse> ongoingComposeResult)
     {
         await Task.CompletedTask;
 
-        response.Reviews =
+        if (request.ProductId != 123)
+        {
+            ongoingComposeResult.NotFoundOrNoResults = true;
+            return;
+        }
+
+        ongoingComposeResult.Response.Reviews =
         [
             new ProductReview(5, "Really good!"),
             new ProductReview(4, "Packing was torn, but it didn't matter"),

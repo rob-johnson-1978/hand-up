@@ -12,7 +12,17 @@ public static class Endpoints
         
         var response = new ProductByIdResponse();
 
-        await serviceComposer.ComposeAsync(request, response);
+        var result = await serviceComposer.ComposeAsync(request, response);
+
+        if (result.NotFoundOrNoResults)
+        {
+            return Results.NotFound();
+        }
+
+        if (result.Errors.Count > 0)
+        {
+            return Results.Problem(string.Join(" / ", result.Errors));
+        }
 
         return Results.Ok(response);
     }
@@ -23,7 +33,12 @@ public static class Endpoints
 
         var response = new List<ProductBySearchTerm>();
 
-        await serviceComposer.ComposeAsync(request, response);
+        var result = await serviceComposer.ComposeAsync(request, response);
+
+        if (result.Errors.Count > 0)
+        {
+            return Results.Problem(string.Join(" / ", result.Errors));
+        }
 
         return Results.Ok(response);
     }

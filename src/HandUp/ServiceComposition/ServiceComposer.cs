@@ -6,7 +6,7 @@ internal class ServiceComposer(HandUpConfiguration options, IServiceProvider sco
 {
     private int count;
 
-    public async Task ComposeAsync<TRequest, TResponse>(TRequest request, TResponse response)
+    public async Task<ComposeResult<TResponse>> ComposeAsync<TRequest, TResponse>(TRequest request, TResponse response)
         where TRequest : class where TResponse : class
     {
         var participators = scopedServiceProvider
@@ -30,13 +30,17 @@ internal class ServiceComposer(HandUpConfiguration options, IServiceProvider sco
 
         var hasCollectionSkeletonPopulator = numberOfCollectionSkeletonPopulators == 1;
 
-        await SetResponseAsync(participators, request, response, hasCollectionSkeletonPopulator).ConfigureAwait(false);
+        var ongoingComposeResult = new ComposeResult<TResponse>(response);
+
+        await SetResponseAsync(participators, request, ongoingComposeResult, hasCollectionSkeletonPopulator).ConfigureAwait(false);
+
+        return ongoingComposeResult;
     }
 
     private async Task SetResponseAsync<TRequest, TResponse>(
         List<IParticipateInRequests<TRequest, TResponse>> participators, 
-        TRequest request, 
-        TResponse response, 
+        TRequest request,
+        ComposeResult<TResponse> ongoingComposeResult, 
         bool hasCollectionSkeletonPopulator)
         where TRequest : class
         where TResponse : class
@@ -46,26 +50,31 @@ internal class ServiceComposer(HandUpConfiguration options, IServiceProvider sco
             return; // all complete
         }
 
+        if (ongoingComposeResult.NotFoundOrNoResults || ongoingComposeResult.Errors.Count > 0)
+        {
+            return;
+        }
+
         if (count > options.MaxParticipationLoopCount)
         {
-            throw new InvalidOperationException($"Participating loop has reached maximum attempts for request {request} / response {response}. Do you have a participator which never becomes ready?");
+            throw new InvalidOperationException($"Participating loop has reached maximum attempts for request {request} / response {ongoingComposeResult}. Do you have a participator which never becomes ready?");
         }
 
         if (hasCollectionSkeletonPopulator)
         {
             var firstParticipator = participators.First();
-            await firstParticipator.ParticipateAsync(request, response).ConfigureAwait(false);
+            await firstParticipator.ParticipateAsync(request, ongoingComposeResult).ConfigureAwait(false);
             participators.Remove(firstParticipator);
         }
 
-        var readyParticipators = participators.Where(x => x.Ready(response)).ToArray();
+        var readyParticipators = participators.Where(x => x.Ready(ongoingComposeResult)).ToArray();
 
         if (readyParticipators.Length < 1)
         {
-            throw new InvalidOperationException($"No participators are ready for request {request} / response {response} despite there being at least one still waiting to participate.");
+            throw new InvalidOperationException($"No participators are ready for request {request} / response {ongoingComposeResult} despite there being at least one still waiting to participate.");
         }
 
-        await Task.WhenAll(readyParticipators.Select(p => p.ParticipateAsync(request, response))).ConfigureAwait(false);
+        await Task.WhenAll(readyParticipators.Select(p => p.ParticipateAsync(request, ongoingComposeResult))).ConfigureAwait(false);
 
         foreach (var readyParticipator in readyParticipators)
         {
@@ -74,6 +83,6 @@ internal class ServiceComposer(HandUpConfiguration options, IServiceProvider sco
 
         count++;
 
-        await SetResponseAsync(participators, request, response, hasCollectionSkeletonPopulator: false).ConfigureAwait(false);
+        await SetResponseAsync(participators, request, ongoingComposeResult, hasCollectionSkeletonPopulator: false).ConfigureAwait(false);
     }
 }

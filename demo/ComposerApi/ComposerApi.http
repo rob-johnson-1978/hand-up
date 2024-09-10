@@ -1,6 +1,21 @@
 @ComposerApi_HostAddress = http://localhost:5250
 
-GET {{ComposerApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
+### Should find
 ###
+
+GET {{ComposerApi_HostAddress}}/product/123
+
+### Not found
+###
+
+GET {{ComposerApi_HostAddress}}/product/456
+
+### Results
+###
+
+GET {{ComposerApi_HostAddress}}/products?searchTerm=abc
+
+### No results
+###
+
+GET {{ComposerApi_HostAddress}}/products?searchTerm=def
