@@ -17,9 +17,9 @@ public static class ServiceCollectionExtensions
         }
 
         var participatorTypes = GetParticipatorTypes(configuration);
-        foreach (var participatorType in participatorTypes)
+        foreach (var (iface, implementation) in participatorTypes)
         {
-            services.AddScoped(participatorType.Interface, participatorType.Implmentation);
+            services.AddScoped(iface, implementation);
         }
 
         services.AddScoped<IComposeServices, ServiceComposer>();
@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static (Type Interface, Type Implmentation)[] GetParticipatorTypes(HandUpConfiguration options)
+    private static (Type Interface, Type Implementation)[] GetParticipatorTypes(HandUpConfiguration options)
     {
         var assemblies = options.Configurators.Select(configurator => configurator.GetType().Assembly);
         var allTypes = assemblies.SelectMany(ass => ass.GetTypes());

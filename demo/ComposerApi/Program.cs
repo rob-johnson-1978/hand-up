@@ -22,5 +22,6 @@ var app = builder.Build();
 app.MapGet("/livez", () => Results.Ok("...and it's LIVE!"));
 
 app.MapGet("/product/{productId:int}", Endpoints.GetProductById);
+app.MapGet("/products", Endpoints.GetProductsBySearchTerm);
 
 app.Run();
