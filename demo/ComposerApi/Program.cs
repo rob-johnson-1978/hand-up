@@ -1,10 +1,10 @@
 using ComposerApi;
+using CustomerService;
 using HandUp;
 using HandUp.AspNet;
 using ProductDetailsService;
 using ProductPricingService;
 using ProductReviewService;
-using SalesService;
 using WarehouseService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +21,7 @@ builder
                 .AddConfigurator(new ProductPricingServiceHandUpConfigurator())
                 .AddConfigurator(new ProductReviewServiceHandUpConfigurator())
                 .AddConfigurator(new WarehouseServiceHandUpConfigurator())
-                .AddConfigurator(new SalesServiceHandUpConfigurator());
+                .AddConfigurator(new CustomerServiceHandUpConfigurator());
         })
     .AddHandUpAspNet();
 
@@ -33,5 +33,6 @@ app.MapGet("/product/{productId:int}", Endpoints.GetProductById);
 app.MapGet("/products", Endpoints.GetProductsBySearchTerm);
 app.MapGet("/async-product/{productId:int}", Endpoints.GetProductByIdForAsync);
 app.MapGet("/async-products", Endpoints.GetProductsBySearchTermForAsync);
+app.MapPost("/checkout/complete", Endpoints.CompleteCheckout);
 
 app.Run();

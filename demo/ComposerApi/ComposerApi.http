@@ -39,3 +39,47 @@ GET {{ComposerApi_HostAddress}}/async-products?searchTerm=abc
 ###
 
 GET {{ComposerApi_HostAddress}}/async-products?searchTerm=def
+
+### Checkout ok
+###
+
+POST {{ComposerApi_HostAddress}}/checkout/complete
+Content-Type: application/json
+
+{
+    "orderId":"0c831c36-2523-4277-aee9-594601c80bfd",
+    "customerId":"b22aa987-c172-4b87-9168-58f89e697f8e",
+    "addressId":"593bec87-373b-4923-bf56-92a8d0fdaf7a",
+    "items":[
+        {
+            "productId":123,
+            "purchasePrice":39.99
+        },
+        {
+            "productId":456,
+            "purchasePrice":29.99
+        }
+    ]
+}
+
+### Checkout bad
+###
+
+POST {{ComposerApi_HostAddress}}/checkout/complete
+Content-Type: application/json
+
+{
+    "orderId":"0c831c36-2523-4277-aee9-594601c80bfd",
+    "customerId":"21e9a89d-adfb-4ab0-8d0e-fda31f40d3e6",
+    "addressId":"593bec87-373b-4923-bf56-92a8d0fdaf7a",
+    "items":[
+        {
+            "productId":123,
+            "purchasePrice":39.99
+        },
+        {
+            "productId":456,
+            "purchasePrice":29.99
+        }
+    ]
+}

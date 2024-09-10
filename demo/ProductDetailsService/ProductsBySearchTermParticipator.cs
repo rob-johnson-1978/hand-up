@@ -3,13 +3,11 @@ using HandUp;
 
 namespace ProductDetailsService;
 
-public class ProductsBySearchTermParticipator : IParticipateInRequests<ProductsBySearchTermRequest, List<ProductBySearchTerm>>
+public class ProductsBySearchTermParticipator : RequestParticipator<ProductsBySearchTermRequest, List<ProductBySearchTerm>>
 {
-    public bool WillPopulateCollectionSkeleton => true;
+    public override bool WillPopulateCollectionSkeleton => true;
 
-    public bool Ready(ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult) => true;
-
-    public async Task ParticipateAsync(ProductsBySearchTermRequest request, ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult)
+    public override async Task ParticipateAsync(ProductsBySearchTermRequest request, ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult)
     {
         await Task.CompletedTask;
 

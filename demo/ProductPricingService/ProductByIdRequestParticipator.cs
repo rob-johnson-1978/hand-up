@@ -3,13 +3,9 @@ using HandUp;
 
 namespace ProductPricingService;
 
-public class ProductByIdRequestParticipator(IRandomFunction randomFunction) : IParticipateInRequests<ProductByIdRequest, ProductByIdResponse>
+public class ProductByIdRequestParticipator(IRandomFunction randomFunction) : RequestParticipator<ProductByIdRequest, ProductByIdResponse>
 {
-    public bool WillPopulateCollectionSkeleton => false;
-
-    public bool Ready(ComposeResult<ProductByIdResponse> ongoingComposeResult) => true; // always ready
-
-    public async Task ParticipateAsync(ProductByIdRequest request, ComposeResult<ProductByIdResponse> ongoingComposeResult)
+    public override async Task ParticipateAsync(ProductByIdRequest request, ComposeResult<ProductByIdResponse> ongoingComposeResult)
     {
         await Task.CompletedTask;
 

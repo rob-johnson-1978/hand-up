@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductPricingService", "de
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductReviewService", "demo\ProductReviewService\ProductReviewService.csproj", "{12BA0AFB-BE4B-480F-9FB0-AA77B8E14DA2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SalesService", "demo\SalesService\SalesService.csproj", "{07FBB3B8-48A3-42C7-AAAB-51E724769EF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomerService", "demo\CustomerService\CustomerService.csproj", "{07FBB3B8-48A3-42C7-AAAB-51E724769EF9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarehouseService", "demo\WarehouseService\WarehouseService.csproj", "{E5EF78E7-0878-4C3E-A30D-A5E057D85729}"
 EndProject

@@ -45,4 +45,10 @@ public static class Endpoints
                 return Results.Problem(string.Join(" / ", errors));
             }
         );
+
+    public static async Task<IResult> CompleteCheckout([FromServices] IComposeServicesForMinimalApis serviceComposer, [FromBody] CompleteCheckoutRequest request) =>
+        await serviceComposer.ComposeEndpointAsync(
+            request: request,
+            response: new CompleteCheckoutResponse()
+        );
 }

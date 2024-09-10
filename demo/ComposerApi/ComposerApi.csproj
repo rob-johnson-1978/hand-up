@@ -13,11 +13,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\HandUp.AspNet\HandUp.AspNet.csproj" />
-    <ProjectReference Include="..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\ProductDetailsService\ProductDetailsService.csproj" />
     <ProjectReference Include="..\ProductPricingService\ProductPricingService.csproj" />
     <ProjectReference Include="..\ProductReviewService\ProductReviewService.csproj" />
-    <ProjectReference Include="..\SalesService\SalesService.csproj" />
+    <ProjectReference Include="..\CustomerService\CustomerService.csproj" />
     <ProjectReference Include="..\WarehouseService\WarehouseService.csproj" />
   </ItemGroup>
 

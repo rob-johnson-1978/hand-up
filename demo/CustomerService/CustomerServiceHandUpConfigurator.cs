@@ -1,9 +1,9 @@
 ﻿using HandUp;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SalesService;
+namespace CustomerService;
 
-public class SalesServiceHandUpConfigurator : IConfigureHandUp
+public class CustomerServiceHandUpConfigurator : IConfigureHandUp
 {
     public IServiceCollection AddServices(IServiceCollection services)
     {

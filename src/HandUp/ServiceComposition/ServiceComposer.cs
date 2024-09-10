@@ -1,30 +1,34 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace HandUp.ServiceComposition;
 
-internal class ServiceComposer(HandUpConfiguration options, IServiceProvider scopedServiceProvider) : IComposeServices
+internal class ServiceComposer(
+    ILogger<ServiceComposer> logger,
+    HandUpConfiguration options,
+    IServiceProvider scopedServiceProvider) : IComposeServices
 {
     private int count;
 
     public async Task<ComposeResult<TResponse>> ComposeAsync<TRequest, TResponse>(TRequest request, TResponse response)
         where TRequest : class where TResponse : class
     {
-        var participators = scopedServiceProvider
-            .GetServices<IParticipateInRequests<TRequest, TResponse>>()
+        var allParticipators = scopedServiceProvider
+            .GetServices<RequestParticipator<TRequest, TResponse>>()
             .OrderByDescending(x => x.WillPopulateCollectionSkeleton)
-            .ToList();
+            .ToArray();
 
-        if (participators.Count < 1)
+        if (allParticipators.Length < 1)
         {
             throw new InvalidOperationException($"No participators are available for request {request} / response {response}. There must be at least one.");
         }
 
-        var numberOfCollectionSkeletonPopulators = participators.Count(x => x.WillPopulateCollectionSkeleton);
+        var numberOfCollectionSkeletonPopulators = allParticipators.Count(x => x.WillPopulateCollectionSkeleton);
 
         if (numberOfCollectionSkeletonPopulators > 1)
         {
             throw new InvalidOperationException($"More than one participator ({numberOfCollectionSkeletonPopulators}) has "
-                                                + $"'{nameof(IParticipateInRequests<object, object>.WillPopulateCollectionSkeleton)}' set to true "
+                                                + $"'{nameof(RequestParticipator<object, object>.WillPopulateCollectionSkeleton)}' set to true "
                                                 + $"for request {request} / response {response}. There can only be one per composition.");
         }
 
@@ -32,20 +36,24 @@ internal class ServiceComposer(HandUpConfiguration options, IServiceProvider sco
 
         var ongoingComposeResult = new ComposeResult<TResponse>(response);
 
-        await SetResponseAsync(participators, request, ongoingComposeResult, hasCollectionSkeletonPopulator).ConfigureAwait(false);
+        var currentParticipators = new List<RequestParticipator<TRequest, TResponse>>(allParticipators.Length);
+        currentParticipators.AddRange(allParticipators);
+
+        await SetResponseAsync(allParticipators, currentParticipators, request, ongoingComposeResult, hasCollectionSkeletonPopulator).ConfigureAwait(false);
 
         return ongoingComposeResult;
     }
 
     private async Task SetResponseAsync<TRequest, TResponse>(
-        List<IParticipateInRequests<TRequest, TResponse>> participators, 
+        RequestParticipator<TRequest, TResponse>[] allParticipators,
+        List<RequestParticipator<TRequest, TResponse>> currentParticipators,
         TRequest request,
-        ComposeResult<TResponse> ongoingComposeResult, 
+        ComposeResult<TResponse> ongoingComposeResult,
         bool hasCollectionSkeletonPopulator)
         where TRequest : class
         where TResponse : class
     {
-        if (participators.Count < 1)
+        if (currentParticipators.Count < 1)
         {
             return; // all complete
         }
@@ -60,29 +68,71 @@ internal class ServiceComposer(HandUpConfiguration options, IServiceProvider sco
             throw new InvalidOperationException($"Participating loop has reached maximum attempts for request {request} / response {ongoingComposeResult}. Do you have a participator which never becomes ready?");
         }
 
-        if (hasCollectionSkeletonPopulator)
+        try
         {
-            var firstParticipator = participators.First();
-            await firstParticipator.ParticipateAsync(request, ongoingComposeResult).ConfigureAwait(false);
-            participators.Remove(firstParticipator);
+            if (hasCollectionSkeletonPopulator)
+            {
+                var firstParticipator = currentParticipators.First();
+                await firstParticipator.ParticipateAsync(request, ongoingComposeResult).ConfigureAwait(false);
+                currentParticipators.Remove(firstParticipator);
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleException<TRequest, TResponse>(ex, ongoingComposeResult.Errors);
+            await RollbackAsync(allParticipators, request, ongoingComposeResult).ConfigureAwait(false);
+            return;
         }
 
-        var readyParticipators = participators.Where(x => x.Ready(ongoingComposeResult)).ToArray();
+        var readyParticipators = currentParticipators.Where(x => x.Ready(ongoingComposeResult)).ToArray();
 
         if (readyParticipators.Length < 1)
         {
             throw new InvalidOperationException($"No participators are ready for request {request} / response {ongoingComposeResult} despite there being at least one still waiting to participate.");
         }
 
-        await Task.WhenAll(readyParticipators.Select(p => p.ParticipateAsync(request, ongoingComposeResult))).ConfigureAwait(false);
+        try
+        {
+            await Task.WhenAll(readyParticipators.Select(p => p.ParticipateAsync(request, ongoingComposeResult))).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            HandleException<TRequest, TResponse>(ex, ongoingComposeResult.Errors);
+            await RollbackAsync(allParticipators, request, ongoingComposeResult).ConfigureAwait(false);
+            return;
+        }
 
         foreach (var readyParticipator in readyParticipators)
         {
-            participators.Remove(readyParticipator);
+            currentParticipators.Remove(readyParticipator);
         }
 
         count++;
 
-        await SetResponseAsync(participators, request, ongoingComposeResult, hasCollectionSkeletonPopulator: false).ConfigureAwait(false);
+        await SetResponseAsync(allParticipators, currentParticipators, request, ongoingComposeResult, hasCollectionSkeletonPopulator: false).ConfigureAwait(false);
+    }
+
+    private void HandleException<TRequest, TResponse>(Exception ex, List<string> errors)
+        where TRequest : class
+        where TResponse : class
+    {
+        const string publicError = "An exception was handled during service participation. See logs";
+        errors.Add(publicError);
+
+        logger.LogError(ex, "An exception was handled during request handling for request {requestType} and response {responseType}. Attempting rollback", typeof(TRequest), typeof(TResponse));
+    }
+
+    private async Task RollbackAsync<TRequest, TResponse>(RequestParticipator<TRequest, TResponse>[] allParticipators, TRequest request, ComposeResult<TResponse> response)
+        where TRequest : class
+        where TResponse : class
+    {
+        try
+        {
+            await Task.WhenAll(allParticipators.Select(x => x.RollbackAsync(request, response)));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Exception occured during rollback for request {requestType} and response {responseType}.", typeof(TRequest), typeof(TResponse));
+        }
     }
 }

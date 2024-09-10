@@ -17,9 +17,9 @@ public static class ServiceCollectionExtensions
         }
 
         var participatorTypes = GetParticipatorTypes(configuration);
-        foreach (var (iface, implementation) in participatorTypes)
+        foreach (var (abstraction, implementation) in participatorTypes)
         {
-            services.AddScoped(iface, implementation);
+            services.AddScoped(abstraction, implementation);
         }
 
         services.AddScoped<IComposeServices, ServiceComposer>();
@@ -27,28 +27,17 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static (Type Interface, Type Implementation)[] GetParticipatorTypes(HandUpConfiguration options)
+    private static (Type Abstraction, Type Implementation)[] GetParticipatorTypes(HandUpConfiguration options)
     {
         var assemblies = options.Configurators.Select(configurator => configurator.GetType().Assembly);
         var allTypes = assemblies.SelectMany(ass => ass.GetTypes());
 
         return allTypes
-            .Where(
-                type =>
-                {
-                    var interfaces = type.GetInterfaces().Where(iface =>
-                        iface is { IsGenericType: true, GenericTypeArguments.Length: 2 } &&
-                        iface.GetGenericTypeDefinition() == typeof(IParticipateInRequests<,>)
-                    ).ToArray();
-
-                    return interfaces.Length switch
-                    {
-                        < 1 => false,
-                        > 1 => throw new Exception($"An implementation of {typeof(IParticipateInRequests<,>).Name} cannot have more than one interface"),
-                        _ => true
-                    };
-                })
-            .Select(type => (type.GetInterfaces().Single(), type))
+            .Where(type => 
+                type.BaseType is { IsGenericType: true } &&
+                type.BaseType.GetGenericTypeDefinition() == typeof(RequestParticipator<,>)
+            )
+            .Select(type => (type.BaseType!, type))
             .ToArray();
     }
 }
