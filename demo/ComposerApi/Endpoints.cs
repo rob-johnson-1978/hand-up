@@ -1,45 +1,48 @@
 ﻿using Contracts;
-using HandUp;
+using HandUp.AspNet;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ComposerApi;
 
 public static class Endpoints
 {
-    public static async Task<IResult> GetProductById([FromServices] IComposeServices serviceComposer, [FromRoute] int productId)
-    {
-        var request = new ProductByIdRequest(productId);
-        
-        var response = new ProductByIdResponse();
+    public static async Task<IResult> GetProductById([FromServices] IComposeServicesForMinimalApis serviceComposer, [FromRoute] int productId) =>
+        await serviceComposer.ComposeEndpointAsync(
+            request: new ProductByIdRequest(productId),
+            response: new ProductByIdResponse()
+        );
 
-        var result = await serviceComposer.ComposeAsync(request, response);
+    public static async Task<IResult> GetProductsBySearchTerm([FromServices] IComposeServicesForMinimalApis serviceComposer, [FromQuery] string searchTerm) =>
+        await serviceComposer.ComposeEndpointAsync(
+            request: new ProductsBySearchTermRequest(searchTerm),
+            response: new List<ProductBySearchTerm>(),
+            onNotFoundOrNoResults: Results.Ok
+        );
 
-        if (result.NotFoundOrNoResults)
-        {
-            return Results.NotFound();
-        }
+    public static async Task<IResult> GetProductByIdForAsync([FromServices] IComposeServicesForMinimalApis serviceComposer, [FromRoute] int productId) =>
+        await serviceComposer.ComposeEndpointAsync(
+            requestForAsync: new ProductByIdRequest(productId),
+            responseForAsync: new ProductByIdResponse()
+        );
 
-        if (result.Errors.Count > 0)
-        {
-            return Results.Problem(string.Join(" / ", result.Errors));
-        }
-
-        return Results.Ok(response);
-    }
-
-    public static async Task<IResult> GetProductsBySearchTerm([FromServices] IComposeServices serviceComposer, [FromQuery] string searchTerm)
-    {
-        var request = new ProductsBySearchTermRequest(searchTerm);
-
-        var response = new List<ProductBySearchTerm>();
-
-        var result = await serviceComposer.ComposeAsync(request, response);
-
-        if (result.Errors.Count > 0)
-        {
-            return Results.Problem(string.Join(" / ", result.Errors));
-        }
-
-        return Results.Ok(response);
-    }
+    public static async Task<IResult> GetProductsBySearchTermForAsync([FromServices] IComposeServicesForMinimalApis serviceComposer, [FromQuery] string searchTerm) =>
+        await serviceComposer.ComposeEndpointAsync(
+            requestForAsync: new ProductsBySearchTermRequest(searchTerm),
+            responseForAsync: new List<ProductBySearchTerm>(),
+            onSuccessAsync: async response =>
+            {
+                await Task.CompletedTask;
+                return Results.Ok(response);
+            },
+            onNotFoundOrNoResultsAsync: async response =>
+            {
+                await Task.CompletedTask;
+                return Results.Ok(response);
+            }, 
+            onErrorAsync: async errors =>
+            {
+                await Task.CompletedTask;
+                return Results.Problem(string.Join(" / ", errors));
+            }
+        );
 }

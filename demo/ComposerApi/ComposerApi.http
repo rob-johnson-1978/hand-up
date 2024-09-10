@@ -19,3 +19,23 @@ GET {{ComposerApi_HostAddress}}/products?searchTerm=abc
 ###
 
 GET {{ComposerApi_HostAddress}}/products?searchTerm=def
+
+### Should find
+###
+
+GET {{ComposerApi_HostAddress}}/async-product/123
+
+### Not found
+###
+
+GET {{ComposerApi_HostAddress}}/async-product/456
+
+### Results
+###
+
+GET {{ComposerApi_HostAddress}}/async-products?searchTerm=abc
+
+### No results
+###
+
+GET {{ComposerApi_HostAddress}}/async-products?searchTerm=def

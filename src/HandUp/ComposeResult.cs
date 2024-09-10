@@ -6,4 +6,5 @@ public record ComposeResult<TResponse>(TResponse Response)
     public bool NotFoundOrNoResults { get; set; }
     public bool CollectionSkeletonReady { get; set; }
     public List<string> Errors { get; set; } = [];
+    public bool HasErrors => Errors.Count > 0;
 }
