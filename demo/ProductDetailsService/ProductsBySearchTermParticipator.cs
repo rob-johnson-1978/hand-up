@@ -5,7 +5,7 @@ namespace ProductDetailsService;
 
 public class ProductsBySearchTermParticipator : RequestParticipator<ProductsBySearchTermRequest, List<ProductBySearchTerm>>
 {
-    public override bool WillPopulateCollectionSkeleton => true;
+    public override bool IsStructureInitializer => true;
 
     public override async Task ParticipateAsync(ProductsBySearchTermRequest request, ComposeResult<List<ProductBySearchTerm>> ongoingComposeResult)
     {
@@ -14,7 +14,7 @@ public class ProductsBySearchTermParticipator : RequestParticipator<ProductsBySe
         if (request.SearchTerm != "abc")
         {
             ongoingComposeResult.NotFoundOrNoResults = true;
-            ongoingComposeResult.CollectionSkeletonReady = true;
+            ongoingComposeResult.StructureInitialized = true;
             return;
         }
 
@@ -39,6 +39,6 @@ public class ProductsBySearchTermParticipator : RequestParticipator<ProductsBySe
             Description = "A fancy one"
         });
 
-        ongoingComposeResult.CollectionSkeletonReady = true;
+        ongoingComposeResult.StructureInitialized = true;
     }
 }
