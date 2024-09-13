@@ -1,7 +1,6 @@
 ﻿using HandUp.ServiceComposition;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
 
