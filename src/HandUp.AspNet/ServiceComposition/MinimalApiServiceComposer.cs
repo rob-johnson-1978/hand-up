@@ -10,7 +10,6 @@ internal class MinimalApiServiceComposer(IComposeServices serviceComposer) : ICo
         Func<TResponse, IResult>? onSuccess = null,
         Func<TResponse, IResult>? onNotFoundOrNoResults = null,
         Func<IReadOnlyCollection<string>, IResult>? onError = null)
-        where TRequest : class where TResponse : class
     {
         var result = await serviceComposer.ComposeAsync(request, response);
 
@@ -39,7 +38,6 @@ internal class MinimalApiServiceComposer(IComposeServices serviceComposer) : ICo
         Func<TResponse, Task<IResult>>? onSuccessAsync = null,
         Func<TResponse, Task<IResult>>? onNotFoundOrNoResultsAsync = null,
         Func<IReadOnlyCollection<string>, Task<IResult>>? onErrorAsync = null)
-        where TRequest : class where TResponse : class
     {
         var result = await serviceComposer.ComposeAsync(requestForAsync, responseForAsync);
 

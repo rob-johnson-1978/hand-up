@@ -11,7 +11,6 @@ internal class ServiceComposer(
     private int count;
 
     public async Task<ComposeResult<TResponse>> ComposeAsync<TRequest, TResponse>(TRequest request, TResponse response)
-        where TRequest : class where TResponse : class
     {
         var remainingParticipators = scopedServiceProvider
             .GetServices<RequestParticipator<TRequest, TResponse>>()
@@ -47,8 +46,6 @@ internal class ServiceComposer(
         TRequest request,
         ComposeResult<TResponse> ongoingComposeResult,
         bool hasStructureInitializer)
-        where TRequest : class
-        where TResponse : class
     {
         if (remainingParticipators.Count < 1)
         {
@@ -119,8 +116,6 @@ internal class ServiceComposer(
     }
 
     private void HandleException<TRequest, TResponse>(Exception ex, List<string> errors)
-        where TRequest : class
-        where TResponse : class
     {
         const string publicError = "An exception was handled during service participation. See logs";
         errors.Add(publicError);
@@ -129,8 +124,6 @@ internal class ServiceComposer(
     }
 
     private async Task RollbackAsync<TRequest, TResponse>(RequestParticipator<TRequest, TResponse>[] participators, TRequest request, ComposeResult<TResponse> response)
-        where TRequest : class
-        where TResponse : class
     {
         try
         {

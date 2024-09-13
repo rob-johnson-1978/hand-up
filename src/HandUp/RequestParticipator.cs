@@ -1,8 +1,6 @@
 ﻿namespace HandUp;
 
 public abstract class RequestParticipator<TRequest, TResponse>
-    where TRequest : class
-    where TResponse : class
 {
     public virtual bool IsStructureInitializer => false;
 
