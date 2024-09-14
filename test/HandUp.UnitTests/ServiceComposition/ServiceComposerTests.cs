@@ -328,7 +328,7 @@ public class InitializerParticipator2 : RequestParticipator<TheRequest, TheRespo
 
 public class SubsequentParticipator1 : RequestParticipator<TheRequest, TheResponse>
 {
-    public override bool Ready(ComposeResult<TheResponse> ongoingComposeResult) => ongoingComposeResult.StructureInitialized;
+    public override bool Ready(TheRequest request, ComposeResult<TheResponse> ongoingComposeResult) => ongoingComposeResult.StructureInitialized;
 
     public override async Task ParticipateAsync(TheRequest request, ComposeResult<TheResponse> ongoingComposeResult)
     {
@@ -352,7 +352,7 @@ public class SubsequentParticipator1 : RequestParticipator<TheRequest, TheRespon
 
 public class SubsequentParticipator2 : RequestParticipator<TheRequest, TheResponse>
 {
-    public override bool Ready(ComposeResult<TheResponse> ongoingComposeResult) => ongoingComposeResult.StructureInitialized;
+    public override bool Ready(TheRequest request, ComposeResult<TheResponse> ongoingComposeResult) => ongoingComposeResult.StructureInitialized;
 
     public override async Task ParticipateAsync(TheRequest request, ComposeResult<TheResponse> ongoingComposeResult)
     {

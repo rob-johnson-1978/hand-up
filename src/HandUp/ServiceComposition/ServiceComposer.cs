@@ -86,7 +86,7 @@ internal class ServiceComposer(
             }
         }
 
-        var readyParticipators = remainingParticipators.Where(x => x.Ready(ongoingComposeResult)).ToArray();
+        var readyParticipators = remainingParticipators.Where(x => x.Ready(request, ongoingComposeResult)).ToArray();
 
         if (readyParticipators.Length < 1)
         {
