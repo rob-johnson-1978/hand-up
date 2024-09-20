@@ -9,8 +9,12 @@ namespace HandUp.AspNet;
 
 public static class WebApplicationExtensions
 {
-    public static WebApplication MapHandUpConfigurationUi(this WebApplication app)
+    private static string[] textRemovalFilters = [];
+
+    public static WebApplication MapHandUpConfigurationUi(this WebApplication app, params string[] textFilters)
     {
+        textRemovalFilters = textFilters;
+
         app.MapGet("hand-up/configuration", Handler);
 
         return app;
@@ -80,6 +84,13 @@ public static class WebApplicationExtensions
             sb.Append("</tr>");
         }
 
-        return html.Replace("{ROWS}", sb.ToString());
+        html = html.Replace("{ROWS}", sb.ToString());
+
+        foreach (var textRemovalFilter in textRemovalFilters)
+        {
+            html = html.Replace(textRemovalFilter, "");
+        }
+
+        return html;
     }
 }
