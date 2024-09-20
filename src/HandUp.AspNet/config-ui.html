@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>UI Logger</title>
+    <style type="text/css">
+        * {
+            font-family: monospace;
+        }
+
+        html {
+            background: #111;
+            color: #ccc;
+        }
+
+        header {
+            padding: 1em;
+            margin-bottom: 2em;
+            border-bottom: 1px solid #aaa;
+        }
+
+        main {
+            padding: 0em 1em;
+            margin-bottom: 2em;
+        }
+
+        button {
+            border: none;
+            padding: 0.5em;
+            background: #333;
+            color: #aaa;
+        }
+
+            button.on {
+                background: #00ff00;
+                color: #111111;
+            }
+
+                button:hover, button.on:hover {
+                    cursor: pointer;
+                }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        thead th {
+            font-weight: bold;
+        }
+
+        th, td {
+            padding: 0.5em;
+            text-align: left;
+            vertical-align: top;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>hand-up</h1>
+    </header>
+    <main>
+        <h2><em>Found Configurations</em></h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Request</th>
+                    <th>Response</th>
+                    <th>Implementors</th>
+                </tr>
+            </thead>
+            <tbody>
+                {ROWS}
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>

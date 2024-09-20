@@ -20,7 +20,10 @@ public static class ServiceCollectionExtensions
         foreach (var (abstraction, implementation) in participatorTypes)
         {
             services.AddScoped(abstraction, implementation);
+            configuration.AddImplementor(abstraction, implementation);
         }
+
+        configuration.CheckForDuplicates();
 
         services.AddScoped<IComposeServices, ServiceComposer>();
 

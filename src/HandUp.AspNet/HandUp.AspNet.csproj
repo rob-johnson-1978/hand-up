@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="config-ui.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="config-ui.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HandUp\HandUp.csproj" />
   </ItemGroup>
 

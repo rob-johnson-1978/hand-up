@@ -35,4 +35,6 @@ app.MapGet("/async-product/{productId:int}", Endpoints.GetProductByIdForAsync);
 app.MapGet("/async-products", Endpoints.GetProductsBySearchTermForAsync);
 app.MapPost("/checkout/complete", Endpoints.CompleteCheckout);
 
+app.MapHandUpConfigurationUi();
+
 app.Run();
